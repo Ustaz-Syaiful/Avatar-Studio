@@ -1,0 +1,6 @@
+{
+  "name": "AvatarKu Studio",
+  "description": "Aplikasi interaktif murid untuk mengambil gambar webcam, memilih avatar pelbagai watak, menggabungkan wajah dan mencetak gambar 4R/A4.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
