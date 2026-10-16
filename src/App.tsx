@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Step, AvatarItem, EditorSettings, PrintLayoutMode } from './types';
 import { AVATARS, BACKGROUND_OPTIONS } from './data/avatars';
 import { Header } from './components/Header';
@@ -7,8 +7,11 @@ import { Step2AvatarPicker } from './components/Step2AvatarPicker';
 import { Step3Editor } from './components/Step3Editor';
 import { Step4DownloadPrint } from './components/Step4DownloadPrint';
 import { PrintSheet } from './components/PrintSheet';
-import { Sparkles, Shield, Camera, Heart, CheckCircle } from 'lucide-react';
+import { GalleryModal } from './components/GalleryModal';
+import { SupabaseConfigModal } from './components/SupabaseConfigModal';
+import { Sparkles, Shield, Camera, Heart, CheckCircle, Database } from 'lucide-react';
 import { calculateFaceAutoFit, DetectedFaceBox } from './utils/faceDetector';
+import { getSupabaseConfig, fetchAllAvatars } from './utils/supabaseService';
 
 const INITIAL_SETTINGS: EditorSettings = {
   avatarId: AVATARS[0].id,
@@ -49,8 +52,29 @@ export default function App() {
   const [printLayout, setPrintLayout] = useState<PrintLayoutMode>('single_full');
   const [printImageUrl, setPrintImageUrl] = useState<string>('');
 
-  // Reset confirmation state
+  // Modals
   const [showResetModal, setShowResetModal] = useState(false);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isSupabaseConfigOpen, setIsSupabaseConfigOpen] = useState(false);
+
+  // Database / Supabase states
+  const [savedCount, setSavedCount] = useState(0);
+  const [isSupabaseConnected, setIsSupabaseConnected] = useState(false);
+
+  const refreshSavedCount = useCallback(async () => {
+    try {
+      const cfg = getSupabaseConfig();
+      setIsSupabaseConnected(Boolean(cfg.url && cfg.anonKey));
+      const res = await fetchAllAvatars();
+      setSavedCount(res.records.length);
+    } catch {
+      // Ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    refreshSavedCount();
+  }, [refreshSavedCount]);
 
   // Handle face capture with auto-fitting
   const handleFaceCaptured = (image: HTMLImageElement, faceBox?: DetectedFaceBox | null) => {
@@ -138,6 +162,10 @@ export default function App() {
           onSelectStep={(step) => setCurrentStep(step)}
           hasCapturedFace={Boolean(capturedFace)}
           onResetAll={() => setShowResetModal(true)}
+          onOpenGallery={() => setIsGalleryOpen(true)}
+          onOpenSupabaseConfig={() => setIsSupabaseConfigOpen(true)}
+          isSupabaseConnected={isSupabaseConnected}
+          savedCount={savedCount}
         />
 
         {/* Dynamic Step Viewport */}
@@ -182,6 +210,9 @@ export default function App() {
                 setCurrentStep('avatar');
               }}
               onSetPrintLayout={handleSetPrintLayout}
+              onOpenGallery={() => setIsGalleryOpen(true)}
+              onOpenSupabaseConfig={() => setIsSupabaseConfigOpen(true)}
+              onAvatarSaved={refreshSavedCount}
             />
           )}
         </main>
@@ -196,15 +227,50 @@ export default function App() {
               <span>— Jom Cipta Avatar Diri Anda!</span>
             </div>
 
-            <div className="flex items-center gap-4 text-slate-500">
-              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200 font-medium">
-                <Shield className="w-3.5 h-3.5" /> 100% Setempat & Terjamin Privasi
+            <div className="flex items-center gap-3 text-slate-500">
+              <button
+                type="button"
+                onClick={() => setIsGalleryOpen(true)}
+                className="hover:text-indigo-600 font-medium transition-colors cursor-pointer"
+              >
+                Galeri Maya ({savedCount})
+              </button>
+              <span>•</span>
+              <button
+                type="button"
+                onClick={() => setIsSupabaseConfigOpen(true)}
+                className="hover:text-emerald-600 font-medium transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <Database className="w-3.5 h-3.5" />
+                Pangkalan Data Supabase
+              </button>
+              <span>•</span>
+              <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 font-medium">
+                <Shield className="w-3 h-3" /> Privasi Terjamin
               </span>
-              <span>Edisi Sekolah Rendah</span>
             </div>
           </div>
         </footer>
       </div>
+
+      {/* Gallery Modal */}
+      <GalleryModal
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        onOpenSupabaseConfig={() => {
+          setIsGalleryOpen(false);
+          setIsSupabaseConfigOpen(true);
+        }}
+      />
+
+      {/* Supabase Config Modal */}
+      <SupabaseConfigModal
+        isOpen={isSupabaseConfigOpen}
+        onClose={() => setIsSupabaseConfigOpen(false)}
+        onConfigSaved={() => {
+          refreshSavedCount();
+        }}
+      />
 
       {/* Reset Confirmation Modal */}
       {showResetModal && (

@@ -425,26 +425,6 @@ export async function renderCompositeAvatar(
       ctx.filter = `brightness(${tf.brightness}%) contrast(${tf.contrast}%)`;
     }
 
-    // Scale face to nicely fill the hole area
-    // Base fit: compute scale relative to faceImage natural dimensions
-    const imgW = (faceImage as HTMLImageElement).naturalWidth || (faceImage as ImageBitmap).width || 400;
-    const imgH = (faceImage as HTMLImageElement).naturalHeight || (faceImage as ImageBitmap).height || 400;
-
-    // Face oval diameter is approx 2 * ry
-    const targetFaceSize = ry * 2.3 * tf.scale;
-    const aspect = imgW / imgH;
-
-    let drawW: number;
-    let drawH: number;
-
-    if (aspect > 1) {
-      drawH = targetFaceSize;
-      drawW = targetFaceSize * aspect;
-    } else {
-      drawW = targetFaceSize;
-      drawH = targetFaceSize / aspect;
-    }
-
     let sourceToDraw: CanvasImageSource = faceImage;
     if (tf.removeBackground) {
       try {
@@ -453,6 +433,21 @@ export async function renderCompositeAvatar(
         console.warn('Background removal error, drawing direct image:', err);
       }
     }
+
+    // Scale face to nicely fill the hole area
+    const imgW = (sourceToDraw as HTMLImageElement).naturalWidth || (sourceToDraw as HTMLCanvasElement).width || 400;
+    const imgH = (sourceToDraw as HTMLImageElement).naturalHeight || (sourceToDraw as HTMLCanvasElement).height || 400;
+    const aspect = imgW / imgH;
+
+    // Face oval diameter is approx 2 * ry
+    // If the image is a wide uncropped webcam frame (aspect > 1.25), the face covers roughly ~38% of the frame.
+    // If the image is a portrait cropped head (aspect <= 1.25), the head covers ~72% of the frame.
+    const isWidescreen = aspect > 1.25;
+    const faceCoverageRatio = isWidescreen ? 0.38 : 0.72;
+    const desiredFaceHeight = ry * 2.38 * tf.scale;
+
+    const drawH = desiredFaceHeight / faceCoverageRatio;
+    const drawW = drawH * aspect;
 
     ctx.drawImage(sourceToDraw, -drawW / 2, -drawH / 2, drawW, drawH);
 

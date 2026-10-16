@@ -207,7 +207,7 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 pb-28 sm:pb-8">
       {/* Step Header */}
       <div className="text-center mb-6">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-bold uppercase tracking-wider mb-2">
@@ -237,7 +237,7 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                className={`w-full h-full object-contain ${
+                className={`w-full h-full object-contain touch-none select-none ${
                   isDragging ? 'cursor-grabbing' : 'cursor-grab'
                 }`}
               />
@@ -280,58 +280,61 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
         {/* Right Column: Customization Tabs & Control Panels (7 cols on lg) */}
         <div className="lg:col-span-7 bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 overflow-hidden">
           
-          {/* Editor Category Tabs */}
-          <div className="flex border-b border-slate-100 overflow-x-auto bg-slate-50/70 p-1.5 gap-1">
+          {/* Editor Category Tabs: Responsive for Mobile */}
+          <div className="flex border-b border-slate-100 overflow-x-auto bg-slate-50/70 p-1.5 gap-1 scrollbar-none">
             <button
               type="button"
               onClick={() => setActiveTab('face')}
-              className={`flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 py-2.5 px-2 sm:px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap min-h-[42px] ${
                 activeTab === 'face'
                   ? 'bg-white text-indigo-700 shadow-sm shadow-indigo-100'
                   : 'text-slate-600 hover:text-indigo-600 hover:bg-white/60'
               }`}
             >
-              <Sliders className="w-4 h-4 text-indigo-600" />
-              <span>1. Laraskan Wajah</span>
+              <Sliders className="w-4 h-4 text-indigo-600 shrink-0" />
+              <span className="sm:hidden">1. Wajah</span>
+              <span className="hidden sm:inline">1. Laraskan Wajah</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('background')}
-              className={`flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 py-2.5 px-2 sm:px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap min-h-[42px] ${
                 activeTab === 'background'
                   ? 'bg-white text-indigo-700 shadow-sm shadow-indigo-100'
                   : 'text-slate-600 hover:text-indigo-600 hover:bg-white/60'
               }`}
             >
-              <Palette className="w-4 h-4 text-pink-600" />
-              <span>2. Latar Belakang</span>
+              <Palette className="w-4 h-4 text-pink-600 shrink-0" />
+              <span className="sm:hidden">2. Latar</span>
+              <span className="hidden sm:inline">2. Latar Belakang</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('frame')}
-              className={`flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 py-2.5 px-2 sm:px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap min-h-[42px] ${
                 activeTab === 'frame'
                   ? 'bg-white text-indigo-700 shadow-sm shadow-indigo-100'
                   : 'text-slate-600 hover:text-indigo-600 hover:bg-white/60'
               }`}
             >
-              <Square className="w-4 h-4 text-amber-500" />
+              <Square className="w-4 h-4 text-amber-500 shrink-0" />
               <span>3. Bingkai</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('text')}
-              className={`flex-1 py-2.5 px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
+              className={`flex-1 py-2.5 px-2 sm:px-3 rounded-2xl text-xs sm:text-sm font-bold flex items-center justify-center gap-1 sm:gap-1.5 transition-all cursor-pointer whitespace-nowrap min-h-[42px] ${
                 activeTab === 'text'
                   ? 'bg-white text-indigo-700 shadow-sm shadow-indigo-100'
                   : 'text-slate-600 hover:text-indigo-600 hover:bg-white/60'
               }`}
             >
-              <Type className="w-4 h-4 text-emerald-600" />
-              <span>4. Nama & Slogan</span>
+              <Type className="w-4 h-4 text-emerald-600 shrink-0" />
+              <span className="sm:hidden">4. Teks</span>
+              <span className="hidden sm:inline">4. Nama & Slogan</span>
             </button>
           </div>
 
@@ -383,18 +386,63 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
                       {Math.round(settings.faceTransform.scale * 100)}%
                     </span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <ZoomOut className="w-4 h-4 text-slate-400" />
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => updateFaceTransform({ scale: Math.max(0.5, Math.round((settings.faceTransform.scale - 0.05) * 100) / 100) })}
+                      className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-black text-lg cursor-pointer shrink-0 active:scale-95"
+                      title="Kecilkan Skala"
+                    >
+                      -
+                    </button>
                     <input
                       type="range"
                       min="0.5"
-                      max="2.0"
+                      max="2.5"
                       step="0.02"
                       value={settings.faceTransform.scale}
                       onChange={(e) => updateFaceTransform({ scale: parseFloat(e.target.value) })}
-                      className="w-full accent-indigo-600 h-2 bg-slate-200 rounded-lg cursor-pointer"
+                      className="w-full accent-indigo-600 h-2.5 bg-slate-200 rounded-lg cursor-pointer"
                     />
-                    <ZoomIn className="w-4 h-4 text-slate-400" />
+                    <button
+                      type="button"
+                      onClick={() => updateFaceTransform({ scale: Math.min(2.5, Math.round((settings.faceTransform.scale + 0.05) * 100) / 100) })}
+                      className="w-10 h-10 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-black text-lg cursor-pointer shrink-0 active:scale-95"
+                      title="Besarkan Skala"
+                    >
+                      +
+                    </button>
+                  </div>
+                  {/* Quick Scale Presets */}
+                  <div className="flex flex-wrap items-center gap-1.5 mt-2.5">
+                    <span className="text-[10px] text-slate-400 font-medium">Pilihan Pantas:</span>
+                    <button
+                      type="button"
+                      onClick={() => updateFaceTransform({ scale: 0.9 })}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                        Math.round(settings.faceTransform.scale * 100) === 90 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      Kecil (90%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateFaceTransform({ scale: 1.05 })}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                        Math.round(settings.faceTransform.scale * 100) === 105 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      Muat Elok (105%)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => updateFaceTransform({ scale: 1.25 })}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold border transition-colors cursor-pointer ${
+                        Math.round(settings.faceTransform.scale * 100) === 125 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'
+                      }`}
+                    >
+                      Besar / Penuh (125%)
+                    </button>
                   </div>
                 </div>
 
@@ -405,36 +453,36 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
                       <Move className="w-4 h-4 text-indigo-600" />
                       <span>Gerakkan Kedudukan Wajah:</span>
                     </label>
-                    <span className="text-[11px] text-slate-500">
+                    <span className="text-[11px] text-slate-500 font-mono">
                       X: {settings.faceTransform.offsetX} | Y: {settings.faceTransform.offsetY}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-center">
-                    <div className="grid grid-cols-3 gap-1.5 w-44">
+                    <div className="grid grid-cols-3 gap-2 w-52 sm:w-48">
                       <div />
                       <button
                         type="button"
                         onClick={() => nudgeFace(0, -10)}
-                        className="p-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-2xs active:scale-95 transition-all cursor-pointer"
+                        className="p-3 bg-white hover:bg-indigo-50 border border-slate-200 rounded-2xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer min-h-[46px]"
                         title="Gerak Ke Atas"
                       >
-                        <ArrowUp className="w-4 h-4" />
+                        <ArrowUp className="w-5 h-5" />
                       </button>
                       <div />
 
                       <button
                         type="button"
                         onClick={() => nudgeFace(-10, 0)}
-                        className="p-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-2xs active:scale-95 transition-all cursor-pointer"
+                        className="p-3 bg-white hover:bg-indigo-50 border border-slate-200 rounded-2xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer min-h-[46px]"
                         title="Gerak Ke Kiri"
                       >
-                        <ArrowLeft className="w-4 h-4" />
+                        <ArrowLeft className="w-5 h-5" />
                       </button>
                       <button
                         type="button"
                         onClick={() => updateFaceTransform({ offsetX: 0, offsetY: 0 })}
-                        className="p-2.5 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-xl text-indigo-700 text-xs font-bold flex items-center justify-center active:scale-95 transition-all cursor-pointer"
+                        className="p-3 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-2xl text-indigo-700 text-xs font-black flex items-center justify-center active:scale-95 transition-all cursor-pointer min-h-[46px]"
                         title="Kembali Ke Tengah"
                       >
                         Tengah
@@ -442,20 +490,20 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
                       <button
                         type="button"
                         onClick={() => nudgeFace(10, 0)}
-                        className="p-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-2xs active:scale-95 transition-all cursor-pointer"
+                        className="p-3 bg-white hover:bg-indigo-50 border border-slate-200 rounded-2xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer min-h-[46px]"
                         title="Gerak Ke Kanan"
                       >
-                        <ArrowRight className="w-4 h-4" />
+                        <ArrowRight className="w-5 h-5" />
                       </button>
 
                       <div />
                       <button
                         type="button"
                         onClick={() => nudgeFace(0, 10)}
-                        className="p-2.5 bg-white hover:bg-indigo-50 border border-slate-200 rounded-xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-2xs active:scale-95 transition-all cursor-pointer"
+                        className="p-3 bg-white hover:bg-indigo-50 border border-slate-200 rounded-2xl text-slate-700 hover:text-indigo-600 flex items-center justify-center shadow-xs active:scale-95 transition-all cursor-pointer min-h-[46px]"
                         title="Gerak Ke Bawah"
                       >
-                        <ArrowDown className="w-4 h-4" />
+                        <ArrowDown className="w-5 h-5" />
                       </button>
                       <div />
                     </div>
@@ -816,16 +864,16 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
 
           </div>
 
-          {/* Bottom Bar: Proceed to Step 4 */}
-          <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-4">
-            <span className="text-xs text-slate-500 font-medium">
+          {/* Bottom Bar: Proceed to Step 4 (Desktop & Tablet) */}
+          <div className="p-4 sm:p-5 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <span className="text-xs text-slate-500 font-medium hidden sm:inline">
               Semua suntingan dikemas kini secara automatik.
             </span>
 
             <button
               type="button"
               onClick={onNext}
-              className="px-8 py-3 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/30 flex items-center gap-2 transition-all transform hover:scale-102 active:scale-98 cursor-pointer"
+              className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2 transition-all transform hover:scale-102 active:scale-98 cursor-pointer min-h-[48px]"
             >
               <span>Avatar Sudah Siap! Lihat & Cetak</span>
               <Check className="w-4 h-4" />
@@ -834,6 +882,23 @@ export const Step3Editor: React.FC<Step3EditorProps> = ({
 
         </div>
 
+      </div>
+
+      {/* Floating Sticky Bottom Bar for Mobile Viewports */}
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-2xl flex items-center justify-between gap-3 z-30 sm:hidden">
+        <div className="truncate">
+          <div className="text-[10px] text-slate-400 font-medium">Avatar:</div>
+          <div className="text-xs font-black text-slate-900 truncate">{avatar.name}</div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onNext}
+          className="px-5 py-2.5 rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 text-white font-black text-xs shadow-md shadow-indigo-300 flex items-center gap-1.5 cursor-pointer min-h-[42px] shrink-0"
+        >
+          <span>Siap & Cetak</span>
+          <Check className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

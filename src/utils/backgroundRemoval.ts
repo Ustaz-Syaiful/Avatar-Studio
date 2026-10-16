@@ -127,5 +127,22 @@ export async function removePortraitBackground(
   ctx.drawImage(maskCanvas, 0, 0);
   ctx.globalCompositeOperation = 'source-over';
 
+  // Crop tightly around the head & neck with pleasant margin so the face directly fits the avatar aperture
+  const cropLeft = Math.max(0, Math.floor(faceCenterX - headRadiusX * 1.2));
+  const cropTop = Math.max(0, Math.floor(headCenterY - headRadiusY * 1.15));
+  const cropRight = Math.min(imgW, Math.ceil(faceCenterX + headRadiusX * 1.2));
+  const cropBottom = Math.min(imgH, Math.ceil(neckBotY + feather * 0.5));
+  const cropW = Math.max(10, cropRight - cropLeft);
+  const cropH = Math.max(10, cropBottom - cropTop);
+
+  const croppedCanvas = document.createElement('canvas');
+  croppedCanvas.width = cropW;
+  croppedCanvas.height = cropH;
+  const cropCtx = croppedCanvas.getContext('2d');
+  if (cropCtx) {
+    cropCtx.drawImage(outputCanvas, cropLeft, cropTop, cropW, cropH, 0, 0, cropW, cropH);
+    return croppedCanvas;
+  }
+
   return outputCanvas;
 }

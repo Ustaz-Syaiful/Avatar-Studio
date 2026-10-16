@@ -198,13 +198,13 @@ export function calculateFaceAutoFit(
 
   // Target avatar face aperture diameter
   // We want detected face height to comfortably fill the vertical radius ry * 2
-  const targetHoleDiameterY = targetFaceHole.ry * 2.15;
+  const targetHoleDiameterY = targetFaceHole.ry * 2.25;
   const detectedH = detectedFace.height || faceImageHeight * 0.45;
 
-  // The base drawing scale in our canvas renderer scales the image by:
-  // targetFaceSize = ry * 2.3 * tf.scale;
-  // If detected face is larger or smaller in the original photo, auto-scale corrects it:
-  const idealScale = Math.max(0.65, Math.min(1.7, (targetHoleDiameterY / detectedH) * 0.88));
+  // The base drawing scale in our canvas renderer scales the image by face coverage ratio.
+  // Here we calculate relative fine-tuning:
+  const rawRatio = targetHoleDiameterY / detectedH;
+  const idealScale = Math.max(0.85, Math.min(1.45, rawRatio > 1.8 ? 1.12 : rawRatio * 0.96));
 
   // Offset adjustment in canvas space (600x900 coordinate system):
   // Default drawing centers image at targetFaceHole (cx, cy).
@@ -213,8 +213,8 @@ export function calculateFaceAutoFit(
   const imgCenterY = faceImageHeight / 2;
 
   // Normalized shift relative to image size mapped to canvas space
-  const deltaX = (imgCenterX - detectedFace.centerX) * (targetHoleDiameterY / detectedH) * 0.6;
-  const deltaY = (imgCenterY - detectedFace.centerY) * (targetHoleDiameterY / detectedH) * 0.6;
+  const deltaX = (imgCenterX - detectedFace.centerX) * (targetHoleDiameterY / detectedH) * 0.45;
+  const deltaY = (imgCenterY - detectedFace.centerY) * (targetHoleDiameterY / detectedH) * 0.45;
 
   const clampedOffsetX = Math.max(-120, Math.min(120, Math.round(deltaX)));
   const clampedOffsetY = Math.max(-120, Math.min(120, Math.round(deltaY)));

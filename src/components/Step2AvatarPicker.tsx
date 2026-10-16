@@ -34,7 +34,7 @@ export const Step2AvatarPicker: React.FC<Step2AvatarPickerProps> = ({
   const activeAvatar = AVATARS.find((a) => a.id === selectedAvatarId) || AVATARS[0];
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-6 sm:py-8">
+    <div className="max-w-7xl mx-auto px-3 sm:px-4 py-5 sm:py-8 pb-28 sm:pb-8">
       {/* Header Banner */}
       <div className="text-center mb-6">
         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs font-bold uppercase tracking-wider mb-2">
@@ -190,13 +190,13 @@ export const Step2AvatarPicker: React.FC<Step2AvatarPickerProps> = ({
         })}
       </div>
 
-      {/* Bottom Sticky Action Bar */}
+      {/* Bottom Action Bar (Desktop & Tablets) */}
       <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/80 border border-slate-100 p-4 sm:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onBack}
-            className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-700 font-bold text-xs sm:text-sm flex items-center gap-2 transition-colors cursor-pointer min-h-[44px]"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Kembali ke Kamera</span>
@@ -210,11 +210,43 @@ export const Step2AvatarPicker: React.FC<Step2AvatarPickerProps> = ({
         <button
           type="button"
           onClick={onNext}
-          className="w-full sm:w-auto px-8 py-3 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all transform hover:scale-102 active:scale-98 cursor-pointer"
+          className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-linear-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-sm sm:text-base shadow-lg shadow-indigo-500/25 flex items-center justify-center gap-2 transition-all transform hover:scale-102 active:scale-98 cursor-pointer min-h-[48px]"
         >
           <span>Seterusnya: Sunting & Laraskan Wajah</span>
           <ArrowRight className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Floating Sticky Bottom Bar Exclusively for Mobile Viewports */}
+      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-slate-200 shadow-2xl flex items-center justify-between gap-2.5 z-30 sm:hidden">
+        <div className="flex items-center gap-2 overflow-hidden min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center shrink-0">
+            <Sparkles className="w-4 h-4 text-indigo-600" />
+          </div>
+          <div className="truncate">
+            <div className="text-[10px] text-slate-400 font-medium">Watak Dipilih:</div>
+            <div className="text-xs font-black text-slate-900 truncate">{activeAvatar.name}</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={onBack}
+            className="p-2.5 rounded-xl border border-slate-200 text-slate-600 hover:bg-slate-50 cursor-pointer min-h-[42px] min-w-[42px] flex items-center justify-center"
+            title="Kembali"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </button>
+          <button
+            type="button"
+            onClick={onNext}
+            className="px-4 py-2.5 rounded-xl bg-indigo-600 text-white font-bold text-xs shadow-md shadow-indigo-300 flex items-center gap-1.5 cursor-pointer min-h-[42px]"
+          >
+            <span>Seterusnya</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -113,3 +113,24 @@ export interface EditorSettings {
 }
 
 export type PrintLayoutMode = 'single_full' | 'dual_medium' | 'quad_sticker';
+
+export interface SavedAvatarRecord {
+  id: string;
+  created_at: string;
+  student_name: string;
+  class_name?: string;
+  avatar_id: string;
+  avatar_name: string;
+  avatar_category: string;
+  slogan_text?: string;
+  image_data: string; // Base64 data URL
+  frame_type?: string;
+  sync_status?: 'synced' | 'local_only' | 'syncing';
+}
+
+export interface SupabaseConfig {
+  url: string;
+  anonKey: string;
+  tableName: string;
+  isConnected: boolean;
+}

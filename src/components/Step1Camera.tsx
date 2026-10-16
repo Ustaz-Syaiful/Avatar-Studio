@@ -59,6 +59,14 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
   // Available camera devices list
   const [videoDevices, setVideoDevices] = useState<VideoDevice[]>([]);
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>('');
+  const [facingMode, setFacingMode] = useState<'user' | 'environment'>('user');
+
+  const handleToggleFacingMode = () => {
+    const nextMode = facingMode === 'user' ? 'environment' : 'user';
+    setFacingMode(nextMode);
+    setIsMirrored(nextMode === 'user');
+    startCamera(undefined, nextMode);
+  };
 
   // Enumerate video devices
   const updateDeviceList = useCallback(async () => {
@@ -148,7 +156,7 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
   }, []);
 
   // Start webcam feed with multi-tier fallback
-  const startCamera = async (deviceIdToUse?: string) => {
+  const startCamera = async (deviceIdToUse?: string, forcedFacingMode?: 'user' | 'environment') => {
     setCameraError(null);
     setCameraLoading(true);
 
@@ -163,7 +171,8 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
     // Stop current stream first
     stopCameraStream();
 
-    const targetDeviceId = deviceIdToUse || selectedDeviceId;
+    const targetFacing = forcedFacingMode || facingMode;
+    const targetDeviceId = deviceIdToUse || (forcedFacingMode ? undefined : selectedDeviceId);
 
     try {
       let stream: MediaStream;
@@ -173,7 +182,7 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
         const constraints: MediaStreamConstraints = {
           video: {
             deviceId: targetDeviceId ? { exact: targetDeviceId } : undefined,
-            facingMode: targetDeviceId ? undefined : 'user',
+            facingMode: targetDeviceId ? undefined : { ideal: targetFacing },
             width: { ideal: 1280 },
             height: { ideal: 720 },
           },
@@ -184,7 +193,9 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
         console.warn('Preferred constraints failed, trying basic fallback:', tier1Error);
         // Tier 2: Try basic video constraint without resolution restrictions
         const fallbackConstraints: MediaStreamConstraints = {
-          video: targetDeviceId ? { deviceId: { exact: targetDeviceId } } : true,
+          video: targetDeviceId
+            ? { deviceId: { exact: targetDeviceId } }
+            : { facingMode: targetFacing },
           audio: false,
         };
         stream = await navigator.mediaDevices.getUserMedia(fallbackConstraints);
@@ -426,7 +437,7 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
 
       {/* Main Viewport Container */}
       <div className="bg-white rounded-3xl shadow-xl shadow-slate-200/70 border border-slate-100 overflow-hidden">
-        <div className="relative aspect-4/3 sm:aspect-16/10 bg-slate-950 flex items-center justify-center overflow-hidden">
+        <div className="relative aspect-3/4 sm:aspect-4/3 md:aspect-16/10 min-h-[380px] sm:min-h-0 bg-slate-950 flex items-center justify-center overflow-hidden">
           
           {/* Shutter Flash Overlay */}
           {isFlashing && (
@@ -541,18 +552,30 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
               </div>
 
               {/* Status Badge */}
-              <div className="absolute top-4 left-4 bg-red-600/90 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-md">
+              <div className="absolute top-4 left-4 bg-red-600/90 text-white px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs font-bold flex items-center gap-1.5 shadow-md">
                 <span className="w-2 h-2 rounded-full bg-white animate-ping" />
-                {isVideoPlaying ? 'Kamera Langsung Aktif' : 'Menyambung Kamera...'}
+                {isVideoPlaying ? 'Kamera Aktif' : 'Menyambung...'}
               </div>
 
-              {/* Mirror Toggle Button */}
-              <div className="absolute top-4 right-4 pointer-events-auto flex items-center gap-2">
+              {/* Top Right Controls: Switch Camera & Mirror */}
+              <div className="absolute top-4 right-4 pointer-events-auto flex items-center gap-1.5 sm:gap-2">
+                <button
+                  type="button"
+                  onClick={handleToggleFacingMode}
+                  className="bg-black/60 hover:bg-black/80 text-white p-2 sm:px-2.5 rounded-xl backdrop-blur-md text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer min-h-[38px]"
+                  title="Tukar Kamera Depan / Belakang"
+                  aria-label="Tukar Kamera"
+                >
+                  <SwitchCamera className="w-4 h-4 text-amber-300" />
+                  <span className="hidden md:inline">{facingMode === 'user' ? 'Kamera Depan' : 'Kamera Belakang'}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setIsMirrored(!isMirrored)}
-                  className="bg-black/60 hover:bg-black/80 text-white p-2 rounded-xl backdrop-blur-md text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer"
+                  className="bg-black/60 hover:bg-black/80 text-white p-2 rounded-xl backdrop-blur-md text-xs font-medium flex items-center gap-1.5 shadow-md transition-all cursor-pointer min-h-[38px]"
                   title="Cerminkan Pratonton (Mirror)"
+                  aria-label="Cerminkan Pratonton"
                 >
                   <FlipHorizontal className="w-4 h-4 text-cyan-300" />
                   <span className="hidden sm:inline">{isMirrored ? 'Bercermin' : 'Biasa'}</span>
@@ -729,13 +752,13 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
           </div>
 
           {/* Right: Primary Capture / Review Action */}
-          <div className="flex items-center gap-3 w-full sm:w-auto justify-center">
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto justify-center">
             {previewSrc ? (
               <>
                 <button
                   type="button"
                   onClick={handleRetake}
-                  className="px-5 py-3 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-sm border border-slate-200 shadow-xs flex items-center gap-2 transition-all cursor-pointer"
+                  className="w-full sm:w-auto px-5 py-3.5 rounded-2xl bg-white hover:bg-slate-100 text-slate-700 font-bold text-sm border border-slate-200 shadow-xs flex items-center justify-center gap-2 transition-all cursor-pointer min-h-[46px]"
                 >
                   <RefreshCw className="w-4 h-4 text-slate-500" />
                   <span>Ambil Semula</span>
@@ -744,7 +767,7 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
                 <button
                   type="button"
                   onClick={onNext}
-                  className="px-6 py-3 rounded-2xl bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm shadow-lg shadow-emerald-500/25 flex items-center gap-2 transition-all transform active:scale-98 cursor-pointer"
+                  className="w-full sm:w-auto px-6 py-3.5 rounded-2xl bg-linear-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-extrabold text-sm shadow-lg shadow-emerald-500/25 flex items-center justify-center gap-2 transition-all transform active:scale-98 cursor-pointer min-h-[46px]"
                 >
                   <span>Gunakan Gambar Ini</span>
                   <Check className="w-4 h-4" />
@@ -755,9 +778,9 @@ export const Step1Camera: React.FC<Step1CameraProps> = ({
                 type="button"
                 onClick={handleCaptureClick}
                 disabled={countdown !== null}
-                className="px-8 py-3.5 rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-extrabold text-base shadow-xl shadow-indigo-500/30 flex items-center gap-3 transition-all transform hover:scale-102 active:scale-98 cursor-pointer"
+                className="w-full sm:w-auto px-8 py-3.5 sm:py-4 rounded-full sm:rounded-2xl bg-linear-to-r from-blue-600 via-indigo-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-extrabold text-sm sm:text-base shadow-xl shadow-indigo-500/30 flex items-center justify-center gap-3 transition-all transform hover:scale-102 active:scale-95 cursor-pointer min-h-[50px]"
               >
-                <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-white flex items-center justify-center shrink-0">
                   <div className="w-3.5 h-3.5 rounded-full bg-white" />
                 </div>
                 <span>{timerSetting > 0 ? `Ambil Gambar (${timerSetting}s)` : 'Ambil Gambar Sekarang'}</span>
